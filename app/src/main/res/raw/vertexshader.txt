@@ -1,12 +1,17 @@
 attribute vec4 vPosition;
 attribute vec4 vColor;
-attribute float scale;
 varying vec4 color;
 uniform mat4 u_mvp_matrix;
+
+uniform vec3 light0_direction;
+uniform vec4 light0_ambient;
+uniform vec4 light0_diffuse;
+uniform vec4 light0_specular;
+uniform vec4 light_world;
 
 void main()
 {
     gl_Position = u_mvp_matrix * vPosition;
-    //gl_Position = vPosition;
-    color = vColor;
+    color = light_world*vColor;
+    //color = vColor;
 }

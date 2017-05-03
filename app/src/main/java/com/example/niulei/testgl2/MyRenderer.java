@@ -157,7 +157,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 				.asShortBuffer()
 				.put(indices);
 		indicesShortBuffer.position(0);
-		GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_SHORT, indicesShortBuffer);
+		GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.length, GLES20.GL_UNSIGNED_SHORT, indicesShortBuffer);
 
 		GLES20.glVertexAttribPointer(vertexLocation, 3, GLES20.GL_FLOAT, false, 0, MatrixGenerator.arrayToBuffer(axiYVertex));
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.length, GLES20.GL_UNSIGNED_SHORT, indicesShortBuffer);
@@ -171,13 +171,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 		GLES20.glUseProgram(program);
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
+		setWorldLight(program, 0.8f, 0.5f, 0.5f, 1.0f);
+
 		int mPosition = GLES20.glGetAttribLocation(program, "vPosition");
 		int mColorPosition = GLES20.glGetAttribLocation(program, "vColor");
 		int mvpMatrixLocation = GLES20.glGetUniformLocation(program, "u_mvp_matrix");
 
 		drawAxis(mPosition, mColorPosition, mvpMatrixLocation);
 
-		GLES20.glVertexAttribPointer(mPosition, 4, GLES20.GL_FLOAT, false, 0, MatrixGenerator.arrayToBuffer(model.getVertexes()));
+		GLES20.glVertexAttribPointer(mPosition, 3, GLES20.GL_FLOAT, false, 0, MatrixGenerator.arrayToBuffer(model.getVertexes()));
 		GLES20.glEnableVertexAttribArray(mPosition);
 
 		if (mColorPosition >= 0) {
@@ -189,7 +191,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 		Matrix.setRotateM(rotateMatrix, 0, (float)180/250*nStep, 0f, 0f, 1f);
 		Matrix.multiplyMM(mvpMatrix, 0, mvMatrix, 0, rotateMatrix, 0);
 
-		GLES20.glUniformMatrix4fv(mvpMatrixLocation, 1, false, MatrixGenerator.arrayToBuffer(mvpMatrix));
+		GLES20.glUniformMatrix4fv(mvpMatrixLocation, 1, false, MatrixGenerator.arrayToBuffer(mvMatrix));
 
 		short indices[] = model.getIndices();
 		ShortBuffer indicesShortBuffer =
@@ -199,7 +201,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 				.put(indices);
 		indicesShortBuffer.position(0);
 		//GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
-		GLES20.glEnable();
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.length, GLES20.GL_UNSIGNED_SHORT, indicesShortBuffer);
+	}
+
+	private void setWorldLight(int program, float r, float g, float b, float a){
+		int light_world_location = GLES20.glGetUniformLocation(program, "light_world");
+		if (light_world_location >= 0){
+			GLES20.glUniform4f(light_world_location, r, g, b, a);
+		}
 	}
 }

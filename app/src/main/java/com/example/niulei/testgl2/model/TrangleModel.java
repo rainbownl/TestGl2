@@ -6,9 +6,9 @@ package com.example.niulei.testgl2.model;
 
 public class TrangleModel extends Model {
 	private float defaultVertexes[] = {
-			0f, 1f, 0f, 1f,
-			-1f, -1f, 0f, 1f,
-			1f, -1f, 0f, 1f
+			0f, 1f, 0f,
+			-1f, -1f, 0f,
+			1f, -1f, 0f,
 	};
 	private float defaultColors[] = {
 			1f, 0f, 0f, 1f,
