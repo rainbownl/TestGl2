@@ -1,17 +1,46 @@
 attribute vec4 vPosition;
 attribute vec4 vColor;
-varying vec4 color;
+attribute vec3 normal;
+attribute vec2 tex_coord;
+
 uniform mat4 u_mvp_matrix;
 
+uniform int light_enable;
+
 uniform vec3 light0_direction;
+uniform vec3 light0_halfplane;
 uniform vec4 light0_ambient;
 uniform vec4 light0_diffuse;
 uniform vec4 light0_specular;
-uniform vec4 light_world;
+
+uniform vec4 material_ambient;
+uniform vec4 material_diffuse;
+varying vec4 color;
+varying vec2 vTex_coord;
+vec4 compute_directional_light(vec3 in_normal)
+{
+    float ndotl;
+    float ndoth;
+
+    vec4 out_color = vec4(0f, 0f, 0f, 0f);
+    vec3 light0_direction_nor = normalize(light0_direction);
+    ndotl = dot(in_normal, light0_direction_nor);
+    ndotl = ndotl > 0.0f ? ndotl:0.0f;
+    ndoth = dot(in_normal, light0_halfplane);
+    ndoth = ndoth > 0.0f ? ndoth:0.0f;
+
+    out_color = light0_ambient * material_ambient;
+    out_color += ndotl*light0_diffuse * material_diffuse;
+
+    return out_color;
+}
 
 void main()
 {
     gl_Position = u_mvp_matrix * vPosition;
-    color = light_world*vColor;
-    //color = vColor;
+    if (light_enable == 1)
+        color = compute_directional_light(normal);
+    else
+        color = vColor*material_diffuse;
+    vTex_coord = tex_coord;
 }

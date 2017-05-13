@@ -1,5 +1,6 @@
 package com.example.niulei.testgl2;
 
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.Message;
@@ -12,12 +13,17 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.example.niulei.testgl2.loader3ds.Parser3ds;
+import com.example.niulei.testgl2.model.Model;
+
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MainActivity extends AppCompatActivity {
     public static final int MSG_TIMER = 0;
@@ -36,6 +42,13 @@ public class MainActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
 
         myRenderer = new MyRenderer(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        Parser3ds parser3ds = new Parser3ds(getResources().openRawResource(R.raw.car)){
+            @Override
+            public InputStream getInputStreamByName(String name) {
+                return getResources().openRawResource(R.raw.tex1030);
+            }
+        };
+        myRenderer.setModelObjects(parser3ds.getObjects());
         myRenderer.setVertexShaderSrc(getVertexShader());
         myRenderer.setFragmentShaderSrc(getFragmentShader());
         myGLSurfaceView.setRenderer(myRenderer);
@@ -128,14 +141,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private String readInputstream(InputStream is){
-        byte[] byteArray = new byte[1024];
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String out = "";
         try {
-            is.read(byteArray);
-            is.close();
+            String line = null;
+            while ((line = br.readLine()) != null){
+                out += line;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new String(byteArray);
+        return out;
     }
     public String getVertexShader(){
         InputStream is = getResources().openRawResource(R.raw.vertexshader);
